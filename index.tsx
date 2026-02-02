@@ -178,7 +178,7 @@ function App() {
         )
       : createElement( Fragment, null,
           createElement('img', { src: secondImg }),
-          createElement('div', { style: { fontSize: '48px', color: 'pink', fontWeight: 'bold' } }, 'Yay!!! 💖🎉')
+          createElement('div', { style: { fontSize: '48px', color: 'pink', fontWeight: 'bold' } }, 'Yay!!! 💖🎉 PHEW!!! you said YES!.... love you JB')
         )
   );
 }
