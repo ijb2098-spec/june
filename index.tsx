@@ -128,33 +128,33 @@ function App() {
   const secondImg = "https://media.tenor.com/f1xnRxTRxLAAAAAj/bears-with-kisses-bg.gif";
 
   const noRef = useRef(null);
-  const rootRef = useRef(null);
 
   useEffect(() => {
+    // initial placement
     moveNo();
     window.addEventListener('resize', moveNo);
     return () => window.removeEventListener('resize', moveNo);
   }, []);
 
-  function randomPos(buttonRect, containerRect) {
-    const maxX = Math.max(0, containerRect.width - buttonRect.width - 20);
-    const maxY = Math.max(0, containerRect.height - buttonRect.height - 20);
-    const left = Math.floor(Math.random() * (maxX + 1));
-    const top = Math.floor(Math.random() * (maxY + 1));
+  function randomPosForViewport(buttonRect) {
+    const pad = 16;
+    const maxX = Math.max(0, window.innerWidth - buttonRect.width - pad);
+    const maxY = Math.max(0, window.innerHeight - buttonRect.height - pad);
+    const left = Math.floor(Math.random() * (maxX + 1)) + pad/2;
+    const top = Math.floor(Math.random() * (maxY + 1)) + pad/2;
     return { left, top };
   }
 
   function moveNo() {
     const btn = noRef.current;
-    const container = rootRef.current || document.getElementById('root');
-    if (!btn || !container) return;
+    if (!btn) return;
     setTimeout(() => {
       const b = btn.getBoundingClientRect();
-      const c = container.getBoundingClientRect();
-      const pos = randomPos(b, c);
-      btn.style.position = 'absolute';
+      const pos = randomPosForViewport(b);
+      btn.style.position = 'fixed';
       btn.style.left = pos.left + 'px';
       btn.style.top = pos.top + 'px';
+      btn.style.zIndex = '9999';
     }, 0);
   }
 
@@ -166,14 +166,14 @@ function App() {
 
   return createElement(
     'div',
-    { id: 'root-wrap', ref: rootRef, style: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Arial, sans-serif', textAlign: 'center' } },
+    { style: { position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Arial, sans-serif', textAlign: 'center' } },
     !isValentine
       ? createElement( Fragment, null,
           createElement('img', { src: firstImg }),
           createElement('h1', null, "Will you be my Valentine? 💘"),
-          createElement('div', { style: { position: 'relative', width: '100%', height: '120px' } },
-            createElement('button', { onClick: handleYes, style: { fontSize: yesButtonSize + 'px', margin: '10px', padding: '10px 20px', backgroundColor: 'green', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' } }, 'Yes'),
-            createElement('button', { ref: noRef, onClick: handleNo, style: { fontSize: '16px', margin: '10px', padding: '10px 20px', backgroundColor: 'red', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', position: 'absolute' } }, noClicks === 0 ? 'No' : NO_PHRASES[Math.min(noClicks - 1, NO_PHRASES.length - 1)])
+          createElement('div', { style: { position: 'relative', width: '100%', height: '140px' } },
+            createElement('button', { onClick: handleYes, style: { fontSize: yesButtonSize + 'px', margin: '10px', padding: '10px 20px', backgroundColor: 'green', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', position: 'relative' } }, 'Yes'),
+            createElement('button', { ref: noRef, onClick: handleNo, style: { fontSize: '16px', margin: '10px', padding: '10px 20px', backgroundColor: 'red', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' } }, noClicks === 0 ? 'No' : NO_PHRASES[Math.min(noClicks - 1, NO_PHRASES.length - 1)])
           )
         )
       : createElement( Fragment, null,
