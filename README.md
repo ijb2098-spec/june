@@ -10,13 +10,14 @@ Files
 Run locally (requires Deno)
 
 1. Install Deno: https://deno.land/
+
 2. Start the local server:
 
 ```bash
 deno run -A --unstable server_local.ts
 ```
 
-3. Open http://localhost:8000 in your browser.
+3. Open http://localhost:8000/june-invite in your browser.
 
 Notes
 - The client imports React from `https://esm.sh` and the app fetches remote images.
