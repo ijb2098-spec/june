@@ -103,25 +103,73 @@ function client() {
 if (typeof document !== "undefined") { client(); }
 
 export default async function server(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  // Serve a browser-friendly ESM client bundle at /client.js
+  if (url.pathname === "/client.js") {
+    const js = `import React from "https://esm.sh/react@18.2.0";
+import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+const { useState, createElement, Fragment } = React;
+const NO_PHRASES = [
+  "No 💔",
+  "Pretty please? 🥺",
+  "But we'd be so cute together! 💕",
+  "One more chance, pookie?",
+  "Don't break my heart :(",
+  "What about a maybe?",
+  "Please don't do this to me, I'm fragile",
+];
+
+function App() {
+  const [noClicks, setNoClicks] = useState(0);
+  const [isValentine, setIsValentine] = useState(false);
+  const yesButtonSize = (noClicks * 20) + 16;
+
+  const firstImg = "https://media.tenor.com/VIChDQ6ejRQAAAAj/jumping-bear-hearts-no-png.gif";
+  const secondImg = "https://media.tenor.com/f1xnRxTRxLAAAAAj/bears-with-kisses-bg.gif";
+
+  const handleNo = () => setNoClicks(p => p + 1);
+  const handleYes = () => setIsValentine(true);
+
+  return createElement(
+    'div',
+    { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Arial, sans-serif', textAlign: 'center' } },
+    !isValentine
+      ? createElement( Fragment, null,
+          createElement('img', { src: firstImg }),
+          createElement('h1', null, 'Will you be my Valentine? 💘'),
+          createElement('div', null,
+            createElement('button', { onClick: handleYes, style: { fontSize: yesButtonSize + 'px', margin: '10px', padding: '10px 20px', backgroundColor: 'green', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' } }, 'Yes'),
+            createElement('button', { onClick: handleNo, style: { fontSize: '16px', margin: '10px', padding: '10px 20px', backgroundColor: 'red', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' } }, noClicks === 0 ? 'No' : NO_PHRASES[Math.min(noClicks - 1, NO_PHRASES.length - 1)])
+          )
+        )
+      : createElement( Fragment, null,
+          createElement('img', { src: secondImg }),
+          createElement('div', { style: { fontSize: '48px', color: 'pink', fontWeight: 'bold' } }, 'Yay!!! 💖🎉')
+        )
+  );
+}
+
+createRoot(document.getElementById('root')).render(createElement(App));
+`;
+
+    return new Response(js, { headers: { 'content-type': 'application/javascript; charset=utf-8' } });
+  }
+
+  // Default: return HTML that loads the client bundle
   return new Response(
-    `
+    `<!doctype html>
     <html>
       <head>
+        <meta charset="utf-8" />
         <title>Valentine's Day Invitation</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-          body { margin: 0; font-family: Arial, sans-serif; }
-        </style>
+        <style>body { margin: 0; font-family: Arial, sans-serif; }</style>
       </head>
       <body>
         <div id="root"></div>
-        <script src="https://esm.town/v/std/catch"></script>
-        <script type="module" src="${import.meta.url}"></script>
+        <script type="module" src="/client.js"></script>
       </body>
-    </html>
-  `,
-    {
-      headers: { "content-type": "text/html" },
-    },
+    </html>`,
+    { headers: { 'content-type': 'text/html; charset=utf-8' } },
   );
 }
